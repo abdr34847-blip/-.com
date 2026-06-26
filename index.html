@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقع شات فوري</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+            max-height: 700px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .name-input-section {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+        }
+
+        .name-input-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            direction: rtl;
+        }
+
+        .name-input-section input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .name-input-section input::placeholder {
+            color: #999;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fff;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease-in;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.own {
+            justify-content: flex-end;
+        }
+
+        .message.other {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            font-size: 14px;
+        }
+
+        .message.own .message-bubble {
+            background: #0066ff;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.other .message-bubble {
+            background: #28a745;
+            color: white;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-name {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .message.own .message-name {
+            text-align: right;
+            color: #0066ff;
+        }
+
+        .message.other .message-name {
+            text-align: left;
+            color: #28a745;
+        }
+
+        .input-section {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            background: #f8f9fa;
+            display: flex;
+            gap: 10px;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .input-section input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            direction: rtl;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-section input::placeholder {
+            color: #999;
+        }
+
+        .send-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            padding: 10px;
+            background: #f0f0f0;
+        }
+
+        /* شريط التمرير */
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        @media (max-width: 600px) {
+            .message-bubble {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 شات فوري</h1>
+            <p>تحدث مع صديقك الآن</p>
+        </div>
+
+        <div class="name-input-section">
+            <input type="text" id="nameInput" placeholder="اكتب اسمك" maxlength="30">
+        </div>
+
+        <div class="status" id="status">جاهز للاتصال...</div>
+
+        <div class="messages-container" id="messagesContainer"></div>
+
+        <div class="input-section">
+            <input type="text" id="messageInput" placeholder="اكتب رسالتك..." maxlength="500">
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">ارسل</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+
+    <script>
+        // ===== ضع اكواد Firebase بتاعتك هنا =====
+        // 1. اذهب إلى https://console.firebase.google.com
+        // 2. اعمل مشروع جديد
+        // 3. اختر Realtime Database
+        // 4. انسخ الكود أدناه وعدّله بقيمك:
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // ========================================
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // متغيرات تطبيق
+        let currentUserName = "";
+        let currentSessionId = generateSessionId();
+        let messagesRef;
+
+        // توليد معرف جلسة فريد
+        function generateSessionId() {
+            return 'session_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // تحديث اسم المستخدم
+        document.getElementById('nameInput').addEventListener('change', function() {
+            currentUserName = this.value.trim();
+            if (currentUserName) {
+                document.getElementById('status').textContent = `👋 مرحباً ${currentUserName}`;
+            }
+        });
+
+        // إرسال الرسالة عند الضغط على Enter
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                sendMessage();
+            }
+        });
+
+        // دالة إرسال الرسالة
+        function sendMessage() {
+            const messageText = document.getElementById('messageInput').value.trim();
+            const userName = currentUserName || 'مجهول';
+
+            if (!messageText) {
+                alert('اكتب رسالة قبل الإرسال');
+                return;
+            }
+
+            if (!currentUserName) {
+                alert('اكتب اسمك أولاً');
+                document.getElementById('nameInput').focus();
+                return;
+            }
+
+            // الحفظ في Firebase
+            const timestamp = new Date().getTime();
+            messagesRef.push().set({
+                name: userName,
+                message: messageText,
+                timestamp: timestamp,
+                sessionId: currentSessionId
+            }).catch(error => {
+                console.error('خطأ في الإرسال:', error);
+                alert('خطأ في الإرسال. تأكد من اتصال الإنترنت');
+            });
+
+            // مسح حقل الإدخال
+            document.getElementById('messageInput').value = '';
+            document.getElementById('messageInput').focus();
+        }
+
+        // دالة عرض الرسالة
+        function displayMessage(data, messageKey) {
+            const container = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            const isOwnMessage = data.name === currentUserName;
+
+            messageDiv.className = `message ${isOwnMessage ? 'own' : 'other'}`;
+            messageDiv.innerHTML = `
+                <div>
+                    <div class="message-name">${data.name}</div>
+                    <div class="message-bubble">${escapeHtml(data.message)}</div>
+                </div>
+            `;
+
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // حماية من HTML Injection
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // تحميل الرسائل وتحديثها
+        function loadMessages() {
+            messagesRef = database.ref('messages');
+
+            // تحميل الرسائل القديمة
+            messagesRef.once('value', (snapshot) => {
+                const messages = snapshot.val();
+                if (messages) {
+                    Object.keys(messages).forEach(key => {
+                        displayMessage(messages[key], key);
+                    });
+                }
+            });
+
+            // الاستماع للرسائل الجديدة
+            messagesRef.on('child_added', (snapshot) => {
+                const data = snapshot.val();
+                const key = snapshot.key;
+
+                // تجنب عرض الرسالة مرتين
+                if (!document.querySelector(`[data-key="${key}"]`)) {
+                    displayMessage(data, key);
+                }
+            });
+
+            // تحديث الحالة
+            document.getElementById('status').textContent = '✅ متصل بـ Firebase';
+        }
+
+        // بدء التطبيق عند التأكد من التوصيل بـ Firebase
+        window.addEventListener('load', function() {
+            try {
+                loadMessages();
+            } catch (error) {
+                console.error('خطأ في الاتصال بـ Firebase:', error);
+                document.getElementById('status').textContent = '❌ خطأ في الاتصال بـ Firebase';
+            }
+        });
+    </script>
+</body>
+</html>
